@@ -1,0 +1,42 @@
+#!/bin/bash
+
+name=$USER
+file_name="/etc/passwd"
+counter=0
+
+while [ ! -z $1 ]
+do
+    if [ $counter -lt 2 ]
+    then
+	if [[ $1 == "-f" ]] && [[ ! -z $2 ]]
+	then
+	    file_name="$2"
+	    shift
+        else
+	    name="$1"
+	fi
+    else
+	echo "ERROR. You have typed more arguments."
+	echo "./userhome [-f file] [login]"
+	exit 2
+    fi
+    counter=$(($counter + 1))
+    shift
+done
+
+if [ -f $file_name ]
+then
+    dir=`grep "^$name:" "$file_name" | cut -d':' -f6`
+    if [[ ! -z $dir ]]
+    then
+	echo "$dir is $username's home directory"
+	exit 0
+    else
+	echo "ERROR. The user '$name's has not been found"
+	exit 1
+    fi
+else
+    echo "ERROR.The file '$file_name' does not exist"
+    exit 2
+fi
+
