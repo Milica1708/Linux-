@@ -1,0 +1,84 @@
+#!/bin/bash
+
+d=
+v=
+sign=
+sfx=
+directory=
+masks=()
+files=()
+comfin=("here")
+
+for i in "$@"
+do
+    if [[ "$i" == "-"* ]] && [[ -z $sign ]]
+    then 
+	case $i in 
+	-h)
+	    echo "-h Help, -d Print old files , -v Print renamed files, -- separator"
+	    exit 0
+	;;
+	-d)
+	    d=1
+	;;
+	-v)
+	    v=1
+	;;
+	--)
+	    break
+	;;
+	*)
+	    echo "Error"
+	;;
+	esac
+    fi
+done
+
+for i in "$@"
+do
+	if  [[ "$i" != "-"* ]] || [[ ! -z $sign ]]
+	then 
+	    if [[ -z $sfx ]]
+	    then 
+		sfx=$i
+	    elif [[ -z $directory ]]
+	    then
+		directory=$i
+		saving+=("dir")
+	    else
+		if [[ ${#saving[@]} -gt 2 ]]
+		then
+		    saving+=("-o")
+		fi
+		saving+=("-name" "$i")
+	    fi
+	elif [[ "$i" == "--" ]]
+	then
+	    sign=1
+	fi
+	shift
+done
+
+if [[ -d $directory ]]
+then
+    "${saving[@]}" | sort -u |while read file
+	do
+	    var1=${file##*"/"}
+	    var2=${file%"var1"}
+	    f_name=${var1%.*}
+	    end=${file#*"$f_name"}
+	    if [[ ! -z $d ]] || [[ ! -z $v ]]
+	    then
+		echo"$file > $var12$f_name$sfx$end"
+		if [[ ! -z $v ]]
+		then
+		    mv -- "$file" "$f_name$sfx$end"
+		fi
+	    else
+		mv -- "$file" "$f_name$sfx$end"
+	    fi
+	done
+else
+    echo "Error. Directory does nor exist" >&2
+    exit 2
+fi
